@@ -1,0 +1,37 @@
+﻿@model Group
+@{
+    ViewData["Title"] = "Group Details";
+}
+
+<h2>Group Details</h2>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Name</dt>
+        <dd class="col-sm-10">@Model.Name</dd>
+
+        <dt class="col-sm-2">Parent Group</dt>
+        <dd class="col-sm-10">@(Model.Parent?.Name ?? "No Parent")</dd>
+
+
+        <dt class="col-sm-2">Image</dt>
+        <dd class="col-sm-10">
+            @if (!string.IsNullOrEmpty(Model.Image))
+            {
+                <img src="@Model.Image" alt="@Model.Name" width="150" />
+            }
+            else
+            {
+                <span>No Image</span>
+            }
+        </dd>
+
+        <dt class="col-sm-2">Status</dt>
+        <dd class="col-sm-10">@(Model.Status ? "Active" : "Inactive")</dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a> |
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</p>

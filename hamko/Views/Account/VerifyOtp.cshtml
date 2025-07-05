@@ -1,0 +1,69 @@
+﻿<div class="container mt-5">
+    <h3>Verify OTP</h3>
+    <p>Please enter the OTP sent to your phone: <strong>@ViewBag.Phone</strong></p>
+
+    <p>Expire in: <span id="timer">60</span> seconds</p>
+
+    <form asp-action="VerifyOtp" method="post">
+        <input type="hidden" name="phone" value="@ViewBag.Phone" />
+        <div class="mb-3">
+            <label for="inputOtp" class="form-label">OTP</label>
+            <input type="text" name="inputOtp" id="inputOtp" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Verify</button>
+    </form>
+
+    <button id="resendBtn" class="btn btn-success d-none" onclick="resendOtp()">Resend OTP</button>
+
+
+    @if (ViewData.ModelState.ErrorCount > 0)
+    {
+        <div class="alert alert-danger mt-3">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <p>@error.ErrorMessage</p>
+            }
+        </div>
+    }
+</div>
+
+<script>
+    let timeLeft = 60;
+    const timerEl = document.getElementById("timer");
+    const resendBtn = document.getElementById("resendBtn");
+
+    const countdown = setInterval(() => {
+        timeLeft--;
+        timerEl.innerText = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            timerEl.innerText = "Expired";
+            resendBtn.classList.remove("d-none");
+        }
+    }, 1000);
+
+    function resendOtp() {
+        fetch('/Account/ResendOtp?phone=@ViewBag.Phone')
+            .then(response => {
+                if (response.ok) {
+                    alert("New OTP sent.");
+                    timeLeft = 60;
+                    resendBtn.classList.add("d-none");
+                    countdownRestart();
+                }
+            });
+    }
+
+    function countdownRestart() {
+        const restart = setInterval(() => {
+            timeLeft--;
+            timerEl.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(restart);
+                timerEl.innerText = "Expired";
+                resendBtn.classList.remove("d-none");
+            }
+        }, 1000);
+    }
+</script>
