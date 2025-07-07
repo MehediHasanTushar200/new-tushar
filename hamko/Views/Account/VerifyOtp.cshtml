@@ -1,69 +1,101 @@
-﻿<div class="container mt-5">
-    <h3>Verify OTP</h3>
-    <p>Please enter the OTP sent to your phone: <strong>@ViewBag.Phone</strong></p>
+﻿@model hamko.Models.User
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Verify OTP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
 
-    <p>Expire in: <span id="timer">60</span> seconds</p>
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-3 text-primary">OTP Verification</h3>
 
-    <form asp-action="VerifyOtp" method="post">
-        <input type="hidden" name="phone" value="@ViewBag.Phone" />
-        <div class="mb-3">
-            <label for="inputOtp" class="form-label">OTP</label>
-            <input type="text" name="inputOtp" id="inputOtp" class="form-control" required />
+                        <p class="text-center">
+                            Please enter the OTP sent to your phone: <strong>@ViewBag.Phone</strong>
+                        </p>
+                        <p class="text-center text-danger">Expires in: <span id="timer">60</span> seconds</p>
+
+                        <form asp-action="VerifyOtp" method="post">
+                            <input type="hidden" name="phone" value="@ViewBag.Phone" />
+                            <div class="mb-3">
+                                <label for="inputOtp" class="form-label">OTP</label>
+                                <input type="text" name="inputOtp" id="inputOtp" class="form-control" required />
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Verify</button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <button id="resendBtn" class="btn btn-outline-success d-none" onclick="resendOtp()">Resend OTP</button>
+                        </div>
+
+                        @if (ViewData.ModelState.ErrorCount > 0)
+                        {
+                            <div class="alert alert-danger mt-3">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <p>@error.ErrorMessage</p>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">Verify</button>
-    </form>
+    </div>
 
-    <button id="resendBtn" class="btn btn-success d-none" onclick="resendOtp()">Resend OTP</button>
+    <script>
+        let timeLeft = 60;
+        const timerEl = document.getElementById("timer");
+        const resendBtn = document.getElementById("resendBtn");
 
-
-    @if (ViewData.ModelState.ErrorCount > 0)
-    {
-        <div class="alert alert-danger mt-3">
-            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-            {
-                <p>@error.ErrorMessage</p>
-            }
-        </div>
-    }
-</div>
-
-<script>
-    let timeLeft = 60;
-    const timerEl = document.getElementById("timer");
-    const resendBtn = document.getElementById("resendBtn");
-
-    const countdown = setInterval(() => {
-        timeLeft--;
-        timerEl.innerText = timeLeft;
-
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            timerEl.innerText = "Expired";
-            resendBtn.classList.remove("d-none");
-        }
-    }, 1000);
-
-    function resendOtp() {
-        fetch('/Account/ResendOtp?phone=@ViewBag.Phone')
-            .then(response => {
-                if (response.ok) {
-                    alert("New OTP sent.");
-                    timeLeft = 60;
-                    resendBtn.classList.add("d-none");
-                    countdownRestart();
-                }
-            });
-    }
-
-    function countdownRestart() {
-        const restart = setInterval(() => {
+        const countdown = setInterval(() => {
             timeLeft--;
             timerEl.innerText = timeLeft;
+
             if (timeLeft <= 0) {
-                clearInterval(restart);
+                clearInterval(countdown);
                 timerEl.innerText = "Expired";
                 resendBtn.classList.remove("d-none");
             }
         }, 1000);
-    }
-</script>
+
+        function resendOtp() {
+            fetch('/Account/ResendOtp?phone=@ViewBag.Phone')
+                .then(response => {
+                    if (response.ok) {
+                        alert("New OTP sent.");
+                        timeLeft = 60;
+                        resendBtn.classList.add("d-none");
+                        countdownRestart();
+                    }
+                });
+        }
+
+        function countdownRestart() {
+            const restart = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(restart);
+                    timerEl.innerText = "Expired";
+                    resendBtn.classList.remove("d-none");
+                }
+            }, 1000);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -19,14 +19,15 @@ namespace hamko.Controllers
         {
             _context = context;
         }
-
+        //register page//
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
+        //register page//
 
-
+        //register page data submit//
         [HttpPost]
         public async Task<IActionResult> Register(User model)
         {
@@ -63,17 +64,18 @@ namespace hamko.Controllers
             // Redirect to OTP page
             return RedirectToAction("VerifyOtp", new { phone = model.Phone });
         }
+        //register page data submit//
 
-
-
+        //register datar jonno otp page//
         [HttpGet]
         public IActionResult VerifyOtp(string phone)
         {
             ViewBag.Phone = phone;
             return View();
         }
+        //register datar jonno otp page//
 
-
+        //register datar jonno otp page data submit//
         [HttpPost]
         public async Task<IActionResult> VerifyOtp(string phone, string inputOtp)
         {
@@ -111,6 +113,7 @@ namespace hamko.Controllers
                 return View();
             }
         }
+        //register datar jonno otp page data submit//
 
         // Simple OTP generator - 6 digit numeric
         private string GenerateOtp()
@@ -126,6 +129,7 @@ namespace hamko.Controllers
             Console.WriteLine($"Sending OTP {otp} to phone {phone}");
         }
 
+        //otp resend er jonno//
         [HttpGet]
         public IActionResult ResendOtp(string phone)
         {
@@ -138,8 +142,9 @@ namespace hamko.Controllers
 
             return Ok();
         }
+        //otp resend er jonno//
 
-
+        //login page er jonno//
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login()
@@ -154,7 +159,9 @@ namespace hamko.Controllers
 
             return View();
         }
+        //login page er jonno//
 
+        //login page er data submit er jonno//
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Login(User model, string CaptchaInput)
@@ -164,37 +171,36 @@ namespace hamko.Controllers
             if (correctAnswer == null || CaptchaInput == null || !int.TryParse(CaptchaInput, out int userAnswer) || userAnswer != correctAnswer)
             {
                 ModelState.AddModelError("CaptchaInput", "CAPTCHA answer is incorrect.");
+                return View(model);
             }
 
-            //if (ModelState.IsValid)
-            //{
-            // UserName দিয়ে user বের করো
             var user = await _context.User.FirstOrDefaultAsync(u => u.UserName == model.UserName);
             if (user != null)
             {
                 var passwordHasher = new PasswordHasher<User>();
-                // password verify করো
                 var result = passwordHasher.VerifyHashedPassword(user, user.Password, model.Password);
                 if (result == PasswordVerificationResult.Success)
                 {
-                    var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim("UserId", user.Id.ToString())
-                };
+                    //if (!user.IsVerified)
+                    //{
+                    //    ModelState.AddModelError("", "Your phone number is not verified.");
+                    //    return View(model);
+                    //}
 
-                    var identity = new ClaimsIdentity(claims, "MyCookieAuth");
-                    var principal = new ClaimsPrincipal(identity);
+                    // Store username temporarily
+                    TempData["LoginUserId"] = user.Id;
+                    TempData["LoginUserName"] = user.UserName;
 
-                    await HttpContext.SignInAsync("MyCookieAuth", principal);
+                    // Generate and send OTP
+                    var otp = GenerateOtp();
+                    OtpStore[user.Phone] = otp;
+                    SendOtpSms(user.Phone, otp);
 
-                    TempData["SuccessMessage"] = "Welcome to Dashboard, login successful!";
-                    return RedirectToAction("Index", "Dashboard");
+                    return RedirectToAction("VerifyLoginOtp", new { phone = user.Phone });
                 }
-                //}
-
-                ModelState.AddModelError(string.Empty, "Invalid username or password");
             }
+
+            ModelState.AddModelError(string.Empty, "Invalid username or password");
 
             // CAPTCHA আবার তৈরি করো
             Random rnd = new Random();
@@ -206,12 +212,86 @@ namespace hamko.Controllers
 
             return View(model);
         }
+        //login page er data submit er jonno//
+
+        //login verify//
+
+        [HttpGet]
+        public IActionResult VerifyLoginOtp(string phone)
+        {
+            ViewBag.Phone = phone;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyLoginOtp(string phone, string inputOtp)
+        {
+            if (!OtpStore.TryGetValue(phone, out var savedOtp))
+            {
+                ModelState.AddModelError("", "OTP expired or invalid. Please try login again.");
+                return View();
+            }
+
+            if (inputOtp == savedOtp)
+            {
+                if (!TempData.TryGetValue("LoginUserId", out var userIdObj) ||
+                    !TempData.TryGetValue("LoginUserName", out var usernameObj))
+                {
+                    ModelState.AddModelError("", "Session expired. Please try login again.");
+                    return View();
+                }
+
+                var userId = int.Parse(userIdObj.ToString());
+                var username = usernameObj.ToString();
+
+                var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, username),
+            new Claim("UserId", userId.ToString())
+        };
+
+                var identity = new ClaimsIdentity(claims, "MyCookieAuth");
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync("MyCookieAuth", principal);
+
+                OtpStore.TryRemove(phone, out _);
+
+                TempData["SuccessMessage"] = "Welcome! Login successful with OTP.";
+                return RedirectToAction("Index", "Dashboard");
+            }
+
+            ModelState.AddModelError("", "Invalid OTP. Please try again.");
+            ViewBag.Phone = phone;
+            return View();
+        }
+        //login verify//
+
+        [HttpGet]
+        public IActionResult ResendLoginOtp(string phone)
+        {
+            if (string.IsNullOrEmpty(phone))
+                return BadRequest();
+
+            var otp = GenerateOtp();
+            OtpStore[phone] = otp;
+            SendOtpSms(phone, otp);
+
+            return Ok();
+        }
+
+
+
+
         [Authorize]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("MyCookieAuth");
             return RedirectToAction("Login");
         }
+
+
+
 
 
     }

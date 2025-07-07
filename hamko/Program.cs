@@ -9,9 +9,9 @@ builder.Services.AddControllersWithViews();
 // Add Session service
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);  // সেশনের মেয়াদ
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;  // GDPR কমপ্লায়েন্স এর জন্য
+    options.Cookie.IsEssential = true;
 });
 
 // Configure DbContext
@@ -22,11 +22,30 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 // Add Authentication with Cookie scheme
+//builder.Services.AddAuthentication("MyCookieAuth")
+//    .AddCookie("MyCookieAuth", options =>
+//    {
+//        options.LoginPath = "/Account/Login";
+//    });
+
 builder.Services.AddAuthentication("MyCookieAuth")
     .AddCookie("MyCookieAuth", options =>
     {
         options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+
+        
+        options.Cookie.MaxAge = null;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+
+        options.SlidingExpiration = true;
+
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
     });
+
 
 // Add Authorization services
 builder.Services.AddAuthorization();
@@ -43,11 +62,6 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// Configure CORS policy
-app.UseCors(policy =>
-    policy.WithOrigins("http://localhost:3000")
-          .AllowAnyHeader()
-          .AllowAnyMethod());
 
 app.UseRouting();
 
