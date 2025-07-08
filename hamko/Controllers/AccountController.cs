@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Concurrent;
+using Newtonsoft.Json.Linq;
 
 namespace hamko.Controllers
 {
@@ -115,17 +116,14 @@ namespace hamko.Controllers
         }
         //register datar jonno otp page data submit//
 
-        // Simple OTP generator - 6 digit numeric
         private string GenerateOtp()
         {
             var random = new Random();
             return random.Next(100000, 999999).ToString();
         }
 
-        // Dummy SMS sender - Replace this with real SMS API integration
         private void SendOtpSms(string phone, string otp)
         {
-            // Example: Call SMS Gateway API here to send SMS
             Console.WriteLine($"Sending OTP {otp} to phone {phone}");
         }
 
@@ -202,7 +200,6 @@ namespace hamko.Controllers
 
             ModelState.AddModelError(string.Empty, "Invalid username or password");
 
-            // CAPTCHA আবার তৈরি করো
             Random rnd = new Random();
             int num1 = rnd.Next(0, 10);
             int num2 = rnd.Next(0, 10);
@@ -279,7 +276,108 @@ namespace hamko.Controllers
 
             return Ok();
         }
+        //Forgot password//
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string userName)
+        {
+            if (string.IsNullOrEmpty(userName))
+            {
+                ModelState.AddModelError("", "Please enter your username.");
+                return View();
+            }
+
+            var user = await _context.User.FirstOrDefaultAsync(u => u.UserName == userName);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "User not found with this username.");
+                return View();
+            }
+
+            // Token generate
+            var token = Guid.NewGuid().ToString();
+            user.ResetToken = token;
+            user.ResetTokenExpiry = DateTime.UtcNow.AddMinutes(30);
+            await _context.SaveChangesAsync();
+
+            var resetLink = Url.Action("ResetPassword", "Account", new { token }, Request.Scheme);
+
+
+            // Example message you may want to send via SMS or email
+            
+
+
+            // Null-safe handling for Phone
+            string phoneEnding = "****";
+            if (!string.IsNullOrEmpty(user.Phone) && user.Phone.Length >= 4)
+            {
+                phoneEnding = user.Phone.Substring(user.Phone.Length - 4);
+            }
+
+            ViewBag.Message = $"Hi {user.UserName}, reset your password has been sent to your registered phone number ending with {phoneEnding}";
+
+
+            ViewBag.ResetLink = resetLink;
+            return View("ForgotPasswordConfirmation");
+        }
+       
+
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult ResetPassword(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("ForgotPassword");
+            }
+
+            var model = new User { ResetToken = token };
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(User model)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    return View(model);
+            //}
+
+            var user = await _context.User.FirstOrDefaultAsync(u => u.ResetToken == model.ResetToken && u.ResetTokenExpiry > DateTime.UtcNow);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Invalid or expired reset token.");
+                return View(model);
+            }
+
+
+            var passwordHasher = new PasswordHasher<User>();
+            user.Password = passwordHasher.HashPassword(user, model.Password);
+
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Password changed successfully. Please login with your new password.";
+
+            return RedirectToAction("Login");
+        }
+
+
+
+
+
+        //Forgot password//
 
 
 

@@ -36,5 +36,11 @@ namespace hamko.Models
         public string CaptchaInput { get; set; }
 
         public bool IsVerified { get; set; } = false;
+
+        // Nullable string for ResetToken (C# 8+)
+        public string? ResetToken { get; set; }
+
+        // Nullable DateTime for ResetTokenExpiry
+        public DateTime? ResetTokenExpiry { get; set; }
     }
 }

@@ -21,6 +21,13 @@
         }
     </style>
 </head>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success text-center">
@@ -81,7 +88,7 @@
                                     Remember me
                                 </label>
                             </div>
-                            <a href="#" class="text-body">Forgot password?</a>
+                            <a href="@Url.Action("ForgotPassword", "Account")" class="text-body">Forgot password?</a>
                         </div>
 
                         <div class="text-center text-lg-start mt-4 pt-2">
