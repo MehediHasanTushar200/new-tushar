@@ -1,0 +1,307 @@
+﻿@model hamko.Models.Sales
+
+@{
+    Layout = null;
+    var stockData = ViewBag.StockData != null ? ViewBag.StockData : new List<dynamic>();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>New Sales Entry</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+
+    <style>
+        .qty-error {
+            color: red;
+            font-size: 0.9em;
+            display: none;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    @if (TempData["error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="container py-4">
+        <form method="post" asp-controller="Sales" asp-action="Create" onsubmit="return disableSubmit(this)">
+            @Html.AntiForgeryToken()
+
+            <h3 class="mb-4">New Sales Entry</h3>
+
+            <!-- Invoice, Reference, Date -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Invoice No</label>
+                    <input type="text" class="form-control" name="InvoiceNo" value="@Model.InvoiceNo" readonly />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Reference No</label>
+                    <input type="text" class="form-control" name="RefNo" value="@Model.RefNo" readonly />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date</label>
+                    <input type="text"
+                           class="form-control"
+                           id="Date"
+                           name="Date"
+                           required
+                           value="@Model.Date.ToString("yyyy-MM-dd")" />
+                </div>
+            </div>
+
+            <!-- Customer, User, Status -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Customer</label>
+                    <select class="form-select" id="CustomerId" name="CustomerId" required>
+                        <option value="">-- Select Customer --</option>
+                        @foreach (var customer in ViewBag.Customers as List<hamko.Models.Customer>)
+                        {
+                            <option value="@customer.Id">@customer.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">User</label>
+                    <select class="form-select" id="UserId" name="UserId" required>
+                        <option value="">-- Select User --</option>
+                        @foreach (var user in ViewBag.Users as List<hamko.Models.User>)
+                        {
+                            <option value="@user.Id">@user.UserName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" name="Status">
+                        <option value="Active" selected>Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Dynamic Details Table -->
+            <div class="table-responsive mb-3">
+                <table id="DetailsTable" class="table table-bordered text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Product</th>
+                            <th style="width: 120px;">Stock Available</th>
+                            <th style="width: 120px;">Qty</th>
+                            <th style="width: 120px;">Price</th>
+                            <th style="width: 120px;">Total</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><button type="button" class="btn btn-sm btn-danger remove-row" disabled>&times;</button></td>
+                            <td>
+                                <input type="hidden" name="StockOuts[0].ProductId" class="product-id" />
+                                <input type="text" name="StockOuts[0].ProductName" class="form-control product-input" required autocomplete="off" />
+                            </td>
+                            <td><span class="stock-available">0</span></td>
+                            <td><input type="number" name="StockOuts[0].Quantity" class="form-control qty" step="0.01" value="1" min="0.01" /></td>
+                            <td><input type="number" name="StockOuts[0].Price" class="form-control price" step="0.01" value="" min="0" /></td>
+                            <td><input type="number" name="StockOuts[0].TotalPrice" class="form-control total" value="0.00" readonly /></td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add Row Controls -->
+            <div class="mb-3 d-flex align-items-center">
+                <input type="number"
+                       id="row-count"
+                       class="form-control me-2"
+                       value="1"
+                       min="1"
+                       max="10"
+                       style="width: 100px;" />
+                <button type="button" class="btn btn-secondary" id="add-row">
+                    Add Row(s)
+                </button>
+            </div>
+
+            <div class="text-end mb-3">
+                <strong>Grand Total: </strong>
+                <span id="grand-total">0.00</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <script>
+        const stockData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(stockData));
+
+        $(document).ready(function () {
+            flatpickr("#Date", {
+                dateFormat: "Y-m-d",
+                defaultDate: new Date()
+            });
+
+            function initAutocomplete(row) {
+                row.find(".product-input").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: '@Url.Action("SearchProducts", "Sales")',
+                            data: { term: request.term },
+                            success: function (data) {
+                                response(data);
+                            }
+                        });
+                    },
+                    minLength: 2,
+                    select: function (event, ui) {
+                        $(this).val(ui.item.label);
+                        row.find(".product-id").val(ui.item.value);
+
+                        // Reset qty, price, total on product select
+                        row.find(".qty").val('1');
+                        row.find(".price").val('');
+                        row.find(".total").val('0.00');
+
+                        updateStockDisplay(row);
+                        updateGrandTotal();
+                        return false;
+                    }
+                });
+            }
+
+            function updateStockDisplay(row) {
+                const productId = row.find(".product-id").val();
+                const stockSpan = row.find('.stock-available');
+
+                if (productId) {
+                    const stockEntry = stockData.find(s => s.ProductId == productId);
+                    const availableQty = stockEntry ? stockEntry.AvailableQty : 0;
+                    stockSpan.text(availableQty);
+                } else {
+                    stockSpan.text('0');
+                }
+            }
+
+            function reIndexRows() {
+                $("#DetailsTable tbody tr").each(function (index) {
+                    $(this).find("input, select").each(function () {
+                        const name = $(this).attr("name");
+                        if (name) {
+                            const newName = name.replace(/\[\d+\]/, `[${index}]`);
+                            $(this).attr("name", newName);
+                        }
+                    });
+                });
+            }
+
+            function updateGrandTotal() {
+                let sum = 0;
+                $(".total").each(function () {
+                    sum += parseFloat($(this).val()) || 0;
+                });
+                $("#grand-total").text(sum.toFixed(2));
+            }
+
+            // Prevent negative inputs and update totals on qty or price change
+            $("#DetailsTable").on("input", ".qty, .price", function () {
+                let val = parseFloat($(this).val()) || 0;
+                if (val < 0) {
+                    $(this).val('0');
+                    val = 0;
+                }
+                const row = $(this).closest("tr");
+                const qty = parseFloat(row.find(".qty").val()) || 0;
+                const price = parseFloat(row.find(".price").val()) || 0;
+                row.find(".total").val((qty * price).toFixed(2));
+                updateGrandTotal();
+            });
+
+            // Update stock display and grand total on product select from autocomplete
+            $("#DetailsTable").on("autocompleteselect", ".product-input", function () {
+                const row = $(this).closest("tr");
+                updateStockDisplay(row);
+                updateGrandTotal();
+            });
+
+            // Initialize autocomplete for existing rows
+            $("#DetailsTable tbody tr").each(function () {
+                initAutocomplete($(this));
+            });
+
+            // Add row(s) button click event
+            $("#add-row").click(function () {
+                const count = parseInt($("#row-count").val()) || 1;
+                const tbody = $("#DetailsTable tbody");
+                const existingRows = tbody.find("tr").length;
+
+                for (let i = 0; i < count; i++) {
+                    let newRow = tbody.find("tr").first().clone();
+
+                    // Clear inputs
+                    newRow.find("input[type='text']").val('');
+                    newRow.find("input[type='hidden']").val('');
+                    newRow.find(".qty").val('1');
+                    newRow.find(".price").val('');
+                    newRow.find(".total").val('0.00');
+                    newRow.find(".stock-available").text('0');
+
+                    // Enable remove button
+                    newRow.find(".remove-row").prop("disabled", false);
+
+                    tbody.append(newRow);
+                }
+
+                // Update name indexes
+                reIndexRows();
+
+                // Initialize autocomplete only for newly added rows
+                for (let i = existingRows; i < existingRows + count; i++) {
+                    let newRow = tbody.find("tr").eq(i);
+                    initAutocomplete(newRow);
+                }
+            });
+
+            // Remove row button event
+            $("#DetailsTable").on("click", ".remove-row", function () {
+                const tbody = $("#DetailsTable tbody");
+                if (tbody.find("tr").length > 1) { // keep at least one row
+                    $(this).closest("tr").remove();
+                    reIndexRows();
+                    updateGrandTotal();
+                }
+            });
+
+            // Disable submit button after submission if form is valid
+            window.disableSubmit = function (form) {
+                if (!form.checkValidity()) {
+                    return false;
+                }
+                const btn = form.querySelector("button[type='submit']");
+                btn.disabled = true;
+                btn.innerText = "Submitting...";
+                return true;
+            };
+
+            // Initial grand total update on page load
+            updateGrandTotal();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+﻿@model hamko.Models.PurchaseDetailsViewModel
+
+@{
+    ViewData["Title"] = "Purchase Details";
+}
+
+<h3 class="mb-3">Purchase Details</h3>
+
+<!-- First row -->
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">Invoice No</label>
+        <input type="text" class="form-control" value="@Model.Purchase.InvoiceNo" readonly />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">Reference No</label>
+        <input type="text" class="form-control" value="@Model.Purchase.RefNo" readonly />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">Date</label>
+        <input type="text" class="form-control" value="@Model.Purchase.Date.ToString("MMMM d, yyyy")" readonly />
+    </div>
+
+</div>
+
+<!-- Second row -->
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">Supplier</label>
+        <input type="text" class="form-control" value="@Model.Purchase.Supplier?.Name" readonly />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">User</label>
+        <input type="text" class="form-control" value="@Model.Purchase.User?.UserName" readonly />
+    </div>
+
+
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">Status</label>
+        <input type="text" class="form-control" value="@Model.Purchase.Status" readonly />
+    </div>
+</div>
+
+<!-- Items Table -->
+<div class="table-responsive mb-3">
+    <table class="table table-bordered text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.StockIns != null && Model.StockIns.Any())
+            {
+                for (int i = 0; i < Model.StockIns.Count; i++)
+                {
+                    var item = Model.StockIns[i];
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@item.Product?.Name</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Price.ToString("N2")</td>
+                        <td>@item.TotalPrice.ToString("N2")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6">No items available.</td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+</div>

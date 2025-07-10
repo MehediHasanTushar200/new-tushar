@@ -1,0 +1,45 @@
+﻿@model List<hamko.Models.Purchase>
+
+@{
+    ViewData["Title"] = "List of Purchases";
+}
+
+<h2 class="text-center mb-5">List of Purchases</h2>
+
+<div class="row mb-4">
+    <div class="col">
+        <a class="btn btn-primary" asp-controller="Purchase" asp-action="Create">Add New Purchase</a>
+    </div>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Invoice No</th>
+            <th>Ref No</th>
+            <th>Date</th>
+
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var purchase in Model)
+        {
+            <tr>
+                <td>@purchase.Id</td>
+                <td>@purchase.InvoiceNo</td>
+                <td>@purchase.RefNo</td>
+                <td>@purchase.Date.ToString("MMMM d, yyyy")</td>
+
+                <td>@purchase.Status</td>
+                <td>
+                    <a href="/Purchase/Details/@purchase.Id" class="btn btn-sm btn-success">View</a>
+                    <a href="/Purchase/Edit/@purchase.Id" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="/Purchase/Delete/@purchase.Id" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this record?');">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

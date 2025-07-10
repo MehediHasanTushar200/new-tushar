@@ -1,0 +1,60 @@
+﻿@model hamko.Models.Product
+
+@{
+    ViewData["Title"] = "Create Product";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+
+<form asp-action="Create" enctype="multipart/form-data" method="post">
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="GroupId">Select Group</label>
+        <select asp-for="GroupId" asp-items="@(ViewData["GroupId"] as SelectList)" class="form-control">
+            <option value="">-- Select Group --</option>
+        </select>
+        <span asp-validation-for="GroupId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ItemId">Select Item</label>
+        <select asp-for="ItemId" asp-items="@(ViewData["ItemId"] as SelectList)" class="form-control">
+            <option value="">-- Select Item --</option>
+        </select>
+        <span asp-validation-for="ItemId" class="text-danger"></span>
+    </div>
+
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ImageFile">Upload Image</label>
+        <input asp-for="ImageFile" type="file" class="form-control" />
+        <span asp-validation-for="ImageFile" class="text-danger"></span>
+    </div>
+
+    <div class="form-group form-check">
+        <input asp-for="Status" class="form-check-input" type="checkbox" />
+        <label asp-for="Status" class="form-check-label"></label>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

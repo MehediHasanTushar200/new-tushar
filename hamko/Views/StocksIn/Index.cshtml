@@ -1,0 +1,36 @@
+﻿@model hamko.ViewModels.StockInSearchViewModel
+
+@{
+    ViewBag.Title = "Stock In Search";
+}
+
+<h2>Stock In List</h2>
+
+@if (Model.Results != null && Model.Results.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Total Quantity</th>
+                <th>Unit Price (Avg)</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Results)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price.ToString("N2")</td>
+                    <td>@item.TotalPrice.ToString("N2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No stock data found.</p>
+}

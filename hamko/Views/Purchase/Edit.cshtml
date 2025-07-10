@@ -1,0 +1,241 @@
+﻿@model hamko.Models.Purchase
+
+@{
+    Layout = "_Layout";
+    var suppliers = ViewBag.Suppliers as List<hamko.Models.Supplier>;
+    var users = ViewBag.Users as List<hamko.Models.User>;
+    var products = ViewBag.Products as List<hamko.Models.Product>;
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-12 col-md-12 rounded border p-4 shadow-sm bg-white">
+            <form method="post" asp-action="Edit" asp-controller="Purchase" id="purchaseForm">
+                <input type="hidden" name="Id" value="@Model.Id" />
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <a asp-action="Index" class="btn btn-primary fw-semibold rounded-pill px-4">
+                        <i class="fas fa-list me-2"></i> List
+                    </a>
+                    <h3 class="m-0">Edit Purchase</h3>
+                    <div></div>
+                </div>
+
+                <!-- First Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Invoice No</label>
+                        <input type="text" class="form-control" name="InvoiceNo" value="@Model.InvoiceNo" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Reference No</label>
+                        <input type="text" class="form-control" name="RefNo" value="@Model.RefNo" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Date</label>
+                        <input type="text" class="form-control" id="Date" name="Date" value="@Model.Date.ToString("yyyy-MM-dd")" required />
+                    </div>
+                </div>
+
+                <!-- Second Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Supplier</label>
+                        <select class="form-select" name="SupplierId" required>
+                            <option value="">Select Supplier</option>
+                            @foreach (var supplier in suppliers)
+                            {
+                                <option value="@supplier.Id" selected="@(supplier.Id == Model.SupplierId ? "selected" : null)">
+                                    @supplier.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">User</label>
+                        <select class="form-select" name="UserId" required>
+                            <option value="">Select User</option>
+                            @foreach (var user in users)
+                            {
+                                <option value="@user.Id" selected="@(user.Id == Model.UserId ? "selected" : null)">
+                                    @user.UserName
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Status</label>
+                        <select class="form-select" name="Status" required>
+                            <option value="Active" selected="@(Model.Status == "Active" ? "selected" : null)">Active</option>
+                            <option value="Inactive" selected="@(Model.Status == "Inactive" ? "selected" : null)">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <div class="table-responsive mb-3">
+                    <table class="table table-bordered align-middle text-center" id="itemsTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="DetailsTable">
+                            @for (int i = 0; i < Model.StockIns.Count; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm remove-row">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+
+                                    </td>
+                                    <td>
+                                        <select class="form-select" name="StockIns[@i].ProductId" required>
+                                            <option value="">Select Product</option>
+                                            @foreach (var product in products)
+                                            {
+                                                <option value="@product.Id" selected="@(product.Id == Model.StockIns[i].ProductId ? "selected" : null)">
+                                                    @product.Name
+                                                </option>
+                                            }
+                                        </select>
+                                    </td>
+                                   
+                                    <td><input type="number" class="form-control qty" name="StockIns[@i].Quantity" value="@Model.StockIns[i].Quantity" step="0.01" required /></td>
+                                    <td><input type="number" class="form-control price" name="StockIns[@i].Price" value="@Model.StockIns[i].Price" step="0.01" required /></td>
+                                    <td><input type="text" class="form-control total" name="StockIns[@i].TotalPrice" value="@Model.StockIns[i].TotalPrice.ToString("0.00")" readonly /></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Row Controls -->
+                <div class="mb-2 d-flex gap-2">
+                    <input type="number" id="rowCount" class="form-control w-auto" value="1" min="1" />
+                    <button type="button" class="btn btn-secondary" id="btn-decrement">-</button>
+                    <button type="button" class="btn btn-secondary" id="btn-increment">+</button>
+                    <button type="button" class="btn btn-success" id="btn-add-row">Add Row(s)</button>
+                </div>
+
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary fw-semibold px-4">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    // Razor-generated product options for new rows
+    const productOptions = `@Html.Raw(string.Join("", products.Select(p => $"<option value='{p.Id}'>{p.Name}</option>")))`;
+
+    // Update input/select name indexes for model binding
+    function updateRowIndexes() {
+        $('#DetailsTable tr').each(function (index) {
+            $(this).find('select, input').each(function () {
+                const name = $(this).attr('name');
+                if (name) {
+                    // Replace index inside [] brackets
+                    const newName = name.replace(/StockIns\[\d+\]/, `StockIns[${index}]`);
+                    $(this).attr('name', newName);
+                }
+            });
+        });
+    }
+
+    // Calculate total price per row
+    function updateTotals() {
+        $('#DetailsTable tr').each(function () {
+            const qty = parseFloat($(this).find('.qty').val()) || 0;
+            const price = parseFloat($(this).find('.price').val()) || 0;
+            const total = qty * price;
+            $(this).find('.total').val(total.toFixed(2));
+        });
+    }
+
+    // Add new rows on button click
+    $('#btn-add-row').click(function () {
+        const count = parseInt($('#rowCount').val()) || 1;
+        const currentCount = $('#DetailsTable tr').length;
+
+        for (let i = 0; i < count; i++) {
+            const index = currentCount + i;
+            const row = `
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm remove-row">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <select class="form-select" name="StockIns[${index}].ProductId" required>
+                            <option value="">Select Product</option>
+                            ${productOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control qty" name="StockIns[${index}].Quantity" value="1" step="0.01" required />
+                    </td>
+                    <td>
+                        <input type="number" class="form-control price" name="StockIns[${index}].Price" value="0" step="0.01" required />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control total" name="StockIns[${index}].TotalPrice" value="0.00" readonly />
+                    </td>
+                </tr>`;
+
+            $('#DetailsTable').append(row);
+        }
+
+        updateRowIndexes();
+        updateTotals();
+    });
+
+    // Remove row handler
+      $(document).on('click', '.remove-row', function () {
+        if ($('#DetailsTable tr').length === 0) {
+            
+            return;
+        }
+        $(this).closest('tr').remove();
+        updateRowIndexes();
+        updateTotals();
+    });
+
+
+    // Update total price when quantity or price changes
+    $(document).on('input', '.qty, .price', function () {
+        const row = $(this).closest('tr');
+        const qty = parseFloat(row.find('.qty').val()) || 0;
+        const price = parseFloat(row.find('.price').val()) || 0;
+        const total = qty * price;
+        row.find('.total').val(total.toFixed(2));
+    });
+
+    // Increment/Decrement row count input
+    $('#btn-increment').click(function () {
+        let val = parseInt($('#rowCount').val()) || 1;
+        $('#rowCount').val(val + 1);
+    });
+
+    $('#btn-decrement').click(function () {
+        let val = parseInt($('#rowCount').val()) || 1;
+        if (val > 1) $('#rowCount').val(val - 1);
+    });
+
+    // On page load, calculate all totals
+    $(document).ready(function () {
+        updateTotals();
+    });
+</script>
