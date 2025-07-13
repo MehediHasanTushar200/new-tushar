@@ -34,6 +34,7 @@ wwwroot\images\groups\download (6).jpeg
 wwwroot\images\groups\download (7).jpeg
 wwwroot\images\groups\download (8).jpeg
 wwwroot\images\groups\download (9).jpeg
+wwwroot\images\items\0-12.webp
 wwwroot\images\items\download (12).jpeg
 wwwroot\images\items\download (14).jpeg
 wwwroot\images\items\download (15).jpeg
@@ -42,6 +43,7 @@ wwwroot\images\items\download (2).jpeg
 wwwroot\images\items\download (3).jpeg
 wwwroot\images\items\download (5).jpeg
 wwwroot\images\logo.png
+wwwroot\images\products\0-12.webp
 wwwroot\images\products\ba963a10-39a5-4c8d-9b55-8c44ccff8bac_download (17).jpeg
 wwwroot\images\products\download (18).jpeg
 wwwroot\images\products\download (19).jpeg
