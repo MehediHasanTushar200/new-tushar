@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using hamko.Service;
 using hamko.Models;
+using hamko.Service;
 
 namespace hamko.Controllers
 {
@@ -19,87 +19,93 @@ namespace hamko.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            var allData = GetReportData(null, null);
-            return View(allData);
+            ViewBag.Groups = _context.Groups.Where(g => g.Status).ToList();
+            ViewBag.Items = _context.Items.ToList();
+
+            var data = GetReportData(null, null, null, null);
+            return View(data);
         }
 
         [HttpPost]
-        public IActionResult Index(DateTime FromDate, DateTime ToDate)
+        public IActionResult Index(DateTime FromDate, DateTime ToDate, int? GroupId, int? ItemId)
         {
+            ViewBag.Groups = _context.Groups.Where(g => g.Status).ToList();
+            ViewBag.Items = _context.Items.ToList();
 
-            var filteredData = GetReportData(FromDate, ToDate);
-            return View(filteredData);
+            var data = GetReportData(FromDate, ToDate, GroupId, ItemId);
+            return View(data);
         }
 
-        private List<GroupReportViewModel> GetReportData(DateTime? from, DateTime? to)
+        private List<GroupReportViewModel> GetReportData(DateTime? from, DateTime? to, int? groupId = null, int? itemId = null)
         {
             var allGroups = _context.Groups.Where(g => g.Status).ToList();
             var allItems = _context.Items.ToList();
-            List<Product> allProducts;
 
+            // Apply item/group filters
+            if (groupId.HasValue)
+                allItems = allItems.Where(i => i.GroupId == groupId.Value).ToList();
+
+            if (itemId.HasValue)
+                allItems = allItems.Where(i => i.Id == itemId.Value).ToList();
+
+            var itemIds = allItems.Select(i => i.Id).ToList();
+
+            // Product filtering
+            List<Product> allProducts;
             if (from.HasValue && to.HasValue)
             {
-                
-                var stockInProductIds = _context.StockIns
-                    .Where(s => s.Purchase != null
-                                && s.Purchase.Date >= from.Value
-                                && s.Purchase.Date <= to.Value)
-                    .Select(s => s.ProductId)
-                    .Distinct();
+                var inIds = _context.StockIns
+                    .Where(s => s.Purchase != null && s.Purchase.Date >= from.Value && s.Purchase.Date <= to.Value)
+                    .Select(s => s.ProductId);
 
-                var stockOutProductIds = _context.StockOuts
-                    .Where(s => s.Sales != null
-                                && s.Sales.Date >= from.Value
-                                && s.Sales.Date <= to.Value)
-                    .Select(s => s.ProductId)
-                    .Distinct();
+                var outIds = _context.StockOuts
+                    .Where(s => s.Sales != null && s.Sales.Date >= from.Value && s.Sales.Date <= to.Value)
+                    .Select(s => s.ProductId);
 
-                var productIdsInRange = stockInProductIds.Union(stockOutProductIds);
+                var ids = inIds.Union(outIds).Distinct();
 
-                allProducts = _context.Products
-                    .Where(p => productIdsInRange.Contains(p.Id))
-                    .ToList();
+                allProducts = _context.Products.Where(p => ids.Contains(p.Id)).ToList();
             }
             else
             {
                 allProducts = _context.Products.ToList();
             }
 
-            // StockIns Query
-            var allStockInsQuery = _context.StockIns.Where(s => s.Purchase != null).AsQueryable();
-            if (from.HasValue && to.HasValue)
-            {
-                allStockInsQuery = allStockInsQuery.Where(s => s.Purchase.Date >= from.Value && s.Purchase.Date <= to.Value);
-            }
-            var allStockIns = allStockInsQuery.ToList();
+            if (groupId.HasValue || itemId.HasValue)
+                allProducts = allProducts.Where(p => itemIds.Contains(p.ItemId)).ToList();
 
-            // StockOuts Query
-            var allStockOutsQuery = _context.StockOuts.Where(s => s.Sales != null).AsQueryable();
+            // StockIns
+            var stockInsQuery = _context.StockIns.Where(s => s.Purchase != null).AsQueryable();
             if (from.HasValue && to.HasValue)
-            {
-                allStockOutsQuery = allStockOutsQuery.Where(s => s.Sales.Date >= from.Value && s.Sales.Date <= to.Value);
-            }
-            var allStockOuts = allStockOutsQuery.ToList();
+                stockInsQuery = stockInsQuery.Where(s => s.Purchase.Date >= from.Value && s.Purchase.Date <= to.Value);
+            var allStockIns = stockInsQuery.ToList();
 
-            var reportData = allGroups
+            // StockOuts
+            var stockOutsQuery = _context.StockOuts.Where(s => s.Sales != null).AsQueryable();
+            if (from.HasValue && to.HasValue)
+                stockOutsQuery = stockOutsQuery.Where(s => s.Sales.Date >= from.Value && s.Sales.Date <= to.Value);
+            var allStockOuts = stockOutsQuery.ToList();
+
+            // Main Group Hierarchy
+            var report = allGroups
                 .Where(g => g.ParentId == null)
-                .Select(main => new GroupReportViewModel
+                .Select(g => new GroupReportViewModel
                 {
-                    Id = main.Id,
-                    GroupName = main.Name,
+                    Id = g.Id,
+                    GroupName = g.Name,
                     Items = allItems
-                        .Where(i => i.GroupId == main.Id)
-                        .Select(item => new ItemReportViewModel
+                        .Where(i => i.GroupId == g.Id)
+                        .Select(i => new ItemReportViewModel
                         {
-                            Id = item.Id,
-                            ItemName = item.Name,
+                            Id = i.Id,
+                            ItemName = i.Name,
                             Products = allProducts
-                                .Where(p => p.ItemId == item.Id)
-                                .Select(product => new ProductReportViewModel
+                                .Where(p => p.ItemId == i.Id)
+                                .Select(p => new ProductReportViewModel
                                 {
-                                    ProductName = product.Name,
+                                    ProductName = p.Name,
                                     StockIns = allStockIns
-                                        .Where(s => s.ProductId == product.Id)
+                                        .Where(s => s.ProductId == p.Id)
                                         .Select(s => new StockInReportViewModel
                                         {
                                             Id = s.Id,
@@ -108,7 +114,7 @@ namespace hamko.Controllers
                                             Total = s.Quantity * s.Price
                                         }).ToList(),
                                     StockOuts = allStockOuts
-                                        .Where(s => s.ProductId == product.Id)
+                                        .Where(s => s.ProductId == p.Id)
                                         .Select(s => new StockOutReportViewModel
                                         {
                                             Id = s.Id,
@@ -119,24 +125,24 @@ namespace hamko.Controllers
                                 }).ToList()
                         }).ToList(),
                     SubGroups = allGroups
-                        .Where(sub => sub.ParentId == main.Id)
+                        .Where(sub => sub.ParentId == g.Id)
                         .Select(sub => new GroupReportViewModel
                         {
                             Id = sub.Id,
                             GroupName = sub.Name,
                             Items = allItems
                                 .Where(i => i.GroupId == sub.Id)
-                                .Select(item => new ItemReportViewModel
+                                .Select(i => new ItemReportViewModel
                                 {
-                                    Id = item.Id,
-                                    ItemName = item.Name,
+                                    Id = i.Id,
+                                    ItemName = i.Name,
                                     Products = allProducts
-                                        .Where(p => p.ItemId == item.Id)
-                                        .Select(product => new ProductReportViewModel
+                                        .Where(p => p.ItemId == i.Id)
+                                        .Select(p => new ProductReportViewModel
                                         {
-                                            ProductName = product.Name,
+                                            ProductName = p.Name,
                                             StockIns = allStockIns
-                                                .Where(s => s.ProductId == product.Id)
+                                                .Where(s => s.ProductId == p.Id)
                                                 .Select(s => new StockInReportViewModel
                                                 {
                                                     Id = s.Id,
@@ -145,7 +151,7 @@ namespace hamko.Controllers
                                                     Total = s.Quantity * s.Price
                                                 }).ToList(),
                                             StockOuts = allStockOuts
-                                                .Where(s => s.ProductId == product.Id)
+                                                .Where(s => s.ProductId == p.Id)
                                                 .Select(s => new StockOutReportViewModel
                                                 {
                                                     Id = s.Id,
@@ -158,13 +164,13 @@ namespace hamko.Controllers
                         }).ToList()
                 }).ToList();
 
-            // Calculate totals
-            foreach (var g in reportData)
+            // Total Calculation
+            foreach (var group in report)
             {
-                g.TotalQty = 0; g.TotalPrice = 0; g.TotalAmount = 0;
-                g.TotalOutQty = 0; g.TotalOutPrice = 0; g.TotalOutAmount = 0;
+                group.TotalQty = 0; group.TotalPrice = 0; group.TotalAmount = 0;
+                group.TotalOutQty = 0; group.TotalOutPrice = 0; group.TotalOutAmount = 0;
 
-                foreach (var item in g.Items)
+                foreach (var item in group.Items)
                 {
                     item.TotalQty = 0; item.TotalPrice = 0; item.TotalAmount = 0;
                     item.TotalOutQty = 0; item.TotalOutPrice = 0; item.TotalOutAmount = 0;
@@ -185,16 +191,16 @@ namespace hamko.Controllers
                         }
                     }
 
-                    g.TotalQty += item.TotalQty;
-                    g.TotalPrice += item.TotalPrice;
-                    g.TotalAmount += item.TotalAmount;
+                    group.TotalQty += item.TotalQty;
+                    group.TotalPrice += item.TotalPrice;
+                    group.TotalAmount += item.TotalAmount;
 
-                    g.TotalOutQty += item.TotalOutQty;
-                    g.TotalOutPrice += item.TotalOutPrice;
-                    g.TotalOutAmount += item.TotalOutAmount;
+                    group.TotalOutQty += item.TotalOutQty;
+                    group.TotalOutPrice += item.TotalOutPrice;
+                    group.TotalOutAmount += item.TotalOutAmount;
                 }
 
-                foreach (var sub in g.SubGroups)
+                foreach (var sub in group.SubGroups)
                 {
                     sub.TotalQty = 0; sub.TotalPrice = 0; sub.TotalAmount = 0;
                     sub.TotalOutQty = 0; sub.TotalOutPrice = 0; sub.TotalOutAmount = 0;
@@ -229,17 +235,17 @@ namespace hamko.Controllers
                         sub.TotalOutAmount += item.TotalOutAmount;
                     }
 
-                    g.TotalQty += sub.TotalQty;
-                    g.TotalPrice += sub.TotalPrice;
-                    g.TotalAmount += sub.TotalAmount;
+                    group.TotalQty += sub.TotalQty;
+                    group.TotalPrice += sub.TotalPrice;
+                    group.TotalAmount += sub.TotalAmount;
 
-                    g.TotalOutQty += sub.TotalOutQty;
-                    g.TotalOutPrice += sub.TotalOutPrice;
-                    g.TotalOutAmount += sub.TotalOutAmount;
+                    group.TotalOutQty += sub.TotalOutQty;
+                    group.TotalOutPrice += sub.TotalOutPrice;
+                    group.TotalOutAmount += sub.TotalOutAmount;
                 }
             }
 
-            return reportData;
+            return report;
         }
 
         // ViewModels

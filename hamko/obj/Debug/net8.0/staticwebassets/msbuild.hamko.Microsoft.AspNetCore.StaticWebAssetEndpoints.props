@@ -372,6 +372,30 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"y6378698oi"},{"Name":"integrity","Value":"sha256-FoSkKRiKnyHrODmA5/xEgX9tdZzLFGNPANvUwkHkdTU="},{"Name":"label","Value":"_content/hamko/images/groups/download (2).jpeg"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"15166"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022FoSkKRiKnyHrODmA5/xEgX9tdZzLFGNPANvUwkHkdTU=\u0022"},{"Name":"Last-Modified","Value":"Wed, 02 Jul 2025 07:20:37 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/hamko/images/groups/download (20).gk27mb86a6.jpeg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\groups\download (20).jpeg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"gk27mb86a6"},{"Name":"integrity","Value":"sha256-wOr9ivZq1ccZgPJbEfFn75wI5TynAq5WAHuH1YcDnMw="},{"Name":"label","Value":"_content/hamko/images/groups/download (20).jpeg"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"7564"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022wOr9ivZq1ccZgPJbEfFn75wI5TynAq5WAHuH1YcDnMw=\u0022"},{"Name":"Last-Modified","Value":"Mon, 14 Jul 2025 06:08:57 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/hamko/images/groups/download (20).jpeg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\groups\download (20).jpeg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-wOr9ivZq1ccZgPJbEfFn75wI5TynAq5WAHuH1YcDnMw="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"7564"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022wOr9ivZq1ccZgPJbEfFn75wI5TynAq5WAHuH1YcDnMw=\u0022"},{"Name":"Last-Modified","Value":"Mon, 14 Jul 2025 06:08:57 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/hamko/images/groups/download (21).jpeg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\groups\download (21).jpeg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-YBYTpog5FtIF00tOplL0Qg\u002B/FixKJ/fnnm0AJXD3nbk="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"4591"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022YBYTpog5FtIF00tOplL0Qg\u002B/FixKJ/fnnm0AJXD3nbk=\u0022"},{"Name":"Last-Modified","Value":"Mon, 14 Jul 2025 06:09:33 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/hamko/images/groups/download (21).sdr7g4nieg.jpeg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\groups\download (21).jpeg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"sdr7g4nieg"},{"Name":"integrity","Value":"sha256-YBYTpog5FtIF00tOplL0Qg\u002B/FixKJ/fnnm0AJXD3nbk="},{"Name":"label","Value":"_content/hamko/images/groups/download (21).jpeg"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"4591"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022YBYTpog5FtIF00tOplL0Qg\u002B/FixKJ/fnnm0AJXD3nbk=\u0022"},{"Name":"Last-Modified","Value":"Mon, 14 Jul 2025 06:09:33 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/hamko/images/groups/download (3).dhzl32llyn.jpeg">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\groups\download (3).jpeg'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
@@ -516,6 +540,18 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"y6378698oi"},{"Name":"integrity","Value":"sha256-FoSkKRiKnyHrODmA5/xEgX9tdZzLFGNPANvUwkHkdTU="},{"Name":"label","Value":"_content/hamko/images/items/download (2).jpeg"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"15166"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022FoSkKRiKnyHrODmA5/xEgX9tdZzLFGNPANvUwkHkdTU=\u0022"},{"Name":"Last-Modified","Value":"Tue, 08 Jul 2025 10:30:49 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/hamko/images/items/download (21).jpeg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\items\download (21).jpeg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-YBYTpog5FtIF00tOplL0Qg\u002B/FixKJ/fnnm0AJXD3nbk="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"4591"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022YBYTpog5FtIF00tOplL0Qg\u002B/FixKJ/fnnm0AJXD3nbk=\u0022"},{"Name":"Last-Modified","Value":"Mon, 14 Jul 2025 06:10:26 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/hamko/images/items/download (21).sdr7g4nieg.jpeg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\items\download (21).jpeg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"sdr7g4nieg"},{"Name":"integrity","Value":"sha256-YBYTpog5FtIF00tOplL0Qg\u002B/FixKJ/fnnm0AJXD3nbk="},{"Name":"label","Value":"_content/hamko/images/items/download (21).jpeg"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"4591"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022YBYTpog5FtIF00tOplL0Qg\u002B/FixKJ/fnnm0AJXD3nbk=\u0022"},{"Name":"Last-Modified","Value":"Mon, 14 Jul 2025 06:10:26 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/hamko/images/items/download (3).dhzl32llyn.jpeg">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\items\download (3).jpeg'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
@@ -599,6 +635,18 @@
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-spfTF\u002BDZTwb17abMO9psBw7K071Osm69qNB7u7MvBp8="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"8554"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022spfTF\u002BDZTwb17abMO9psBw7K071Osm69qNB7u7MvBp8=\u0022"},{"Name":"Last-Modified","Value":"Wed, 09 Jul 2025 04:39:04 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/hamko/images/products/download (22).dxagjscivu.jpeg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\products\download (22).jpeg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"dxagjscivu"},{"Name":"integrity","Value":"sha256-Ub5Y2K83AqQyRjY1LJEEw9PbQ2H7S/\u002BHJc20knndgY4="},{"Name":"label","Value":"_content/hamko/images/products/download (22).jpeg"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5100"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022Ub5Y2K83AqQyRjY1LJEEw9PbQ2H7S/\u002BHJc20knndgY4=\u0022"},{"Name":"Last-Modified","Value":"Mon, 14 Jul 2025 06:22:08 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/hamko/images/products/download (22).jpeg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\products\download (22).jpeg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-Ub5Y2K83AqQyRjY1LJEEw9PbQ2H7S/\u002BHJc20knndgY4="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"5100"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022Ub5Y2K83AqQyRjY1LJEEw9PbQ2H7S/\u002BHJc20knndgY4=\u0022"},{"Name":"Last-Modified","Value":"Mon, 14 Jul 2025 06:22:08 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/hamko/images/products/download (5).3873zlhg4g.jpeg">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\products\download (5).jpeg'))</AssetFile>

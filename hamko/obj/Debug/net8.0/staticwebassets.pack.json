@@ -7545,6 +7545,14 @@
       "PackagePath": "staticwebassets\\images\\groups\\download (2).jpeg"
     },
     {
+      "Id": "D:\\new-tushar\\MyDotNetApp\\hamko\\wwwroot\\images\\groups\\download (20).jpeg",
+      "PackagePath": "staticwebassets\\images\\groups\\download (20).jpeg"
+    },
+    {
+      "Id": "D:\\new-tushar\\MyDotNetApp\\hamko\\wwwroot\\images\\groups\\download (21).jpeg",
+      "PackagePath": "staticwebassets\\images\\groups\\download (21).jpeg"
+    },
+    {
       "Id": "D:\\new-tushar\\MyDotNetApp\\hamko\\wwwroot\\images\\groups\\download (3).jpeg",
       "PackagePath": "staticwebassets\\images\\groups\\download (3).jpeg"
     },
@@ -7593,6 +7601,10 @@
       "PackagePath": "staticwebassets\\images\\items\\download (2).jpeg"
     },
     {
+      "Id": "D:\\new-tushar\\MyDotNetApp\\hamko\\wwwroot\\images\\items\\download (21).jpeg",
+      "PackagePath": "staticwebassets\\images\\items\\download (21).jpeg"
+    },
+    {
       "Id": "D:\\new-tushar\\MyDotNetApp\\hamko\\wwwroot\\images\\items\\download (3).jpeg",
       "PackagePath": "staticwebassets\\images\\items\\download (3).jpeg"
     },
@@ -7619,6 +7631,10 @@
     {
       "Id": "D:\\new-tushar\\MyDotNetApp\\hamko\\wwwroot\\images\\products\\download (19).jpeg",
       "PackagePath": "staticwebassets\\images\\products\\download (19).jpeg"
+    },
+    {
+      "Id": "D:\\new-tushar\\MyDotNetApp\\hamko\\wwwroot\\images\\products\\download (22).jpeg",
+      "PackagePath": "staticwebassets\\images\\products\\download (22).jpeg"
     },
     {
       "Id": "D:\\new-tushar\\MyDotNetApp\\hamko\\wwwroot\\images\\products\\download (5).jpeg",
