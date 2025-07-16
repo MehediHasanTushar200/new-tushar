@@ -375,11 +375,7 @@ namespace hamko.Controllers
 
 
 
-
-
         //Forgot password//
-
-
 
         [Authorize]
         public async Task<IActionResult> Logout()

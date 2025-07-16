@@ -16,14 +16,32 @@ public class GroupsController : Controller
     }
 
     // GET: Groups
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1)
     {
-        var groups = await _context.Groups
-                            .Include(g => g.Parent) // Parent গ্রুপ লোড করার জন্য
-                            .ToListAsync();
+        int pageSize = 50;
 
-        return View(groups);
+        var groupsQuery = _context.Groups
+                            .Include(g => g.Parent)
+                            .OrderBy(g => g.Id);
+
+        int totalItems = await groupsQuery.CountAsync();
+
+        var groups = await groupsQuery
+                        .Skip((page - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToListAsync();
+
+        var model = new GroupListViewModel
+        {
+            Groups = groups,
+            PageNumber = page,
+            PageSize = pageSize,
+            TotalItems = totalItems
+        };
+
+        return View(model);
     }
+
 
     // GET: Groups/Details/5
     public async Task<IActionResult> Details(int? id)

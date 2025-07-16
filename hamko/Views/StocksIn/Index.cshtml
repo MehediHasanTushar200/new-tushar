@@ -34,3 +34,25 @@ else
 {
     <p>No stock data found.</p>
 }
+
+@* @if (Model.TotalPages > 1) *@
+@* { *@
+@*     <nav class="mt-3 d-flex justify-content-center"> *@
+@*         <ul class="pagination"> *@
+@*             <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")"> *@
+@*                 <a class="page-link" asp-action="StockInList" asp-route-page="@(Model.PageNumber - 1)">Previous</a> *@
+@*             </li> *@
+
+@*             @for (int i = 1; i <= Model.TotalPages; i++) *@
+@*             { *@
+@*                 <li class="page-item @(i == Model.PageNumber ? "active" : "")"> *@
+@*                     <a class="page-link" asp-action="StockInList" asp-route-page="@i">@i</a> *@
+@*                 </li> *@
+@*             } *@
+
+@*             <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")"> *@
+@*                 <a class="page-link" asp-action="StockInList" asp-route-page="@(Model.PageNumber + 1)">Next</a> *@
+@*             </li> *@
+@*         </ul> *@
+@*     </nav> *@
+@* } *@

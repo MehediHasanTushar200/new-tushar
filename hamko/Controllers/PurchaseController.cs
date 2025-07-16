@@ -16,11 +16,29 @@ namespace hamko.Controllers
             _environment = environment;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var purchase = _context.Purchases.ToList();
-            return View(purchase);
+            int pageSize = 50;
+
+            var query = _context.Purchases.OrderBy(p => p.Id);
+
+            int totalItems = await query.CountAsync();
+
+            var purchases = await query
+                        .Skip((page - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToListAsync();
+
+            var model = new PurchaseListViewModel
+            {
+                Purchases = purchases,
+                PageNumber = page,
+                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize)
+            };
+
+            return View(model);
         }
+
 
         public IActionResult Create()
         {

@@ -16,13 +16,31 @@ namespace hamko.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var products = await _context.Products.Include(p => p.Group).ToListAsync();
-            var items = await _context.Items.Include(p => p.Group).ToListAsync(); // or just .ToListAsync() if no nav prop
-                                                                                  // If you want to pass both to the view, create a ViewModel or pass via ViewBag
-            return View(products);
+            int pageSize = 50;
+
+            var query = _context.Products
+                                .Include(p => p.Group)
+                                .OrderBy(p => p.Id);
+
+            int totalItems = await query.CountAsync();
+
+            var products = await query
+                                .Skip((page - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToListAsync();
+
+            var model = new ProductListViewModel
+            {
+                Products = products,
+                PageNumber = page,
+                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize)
+            };
+
+            return View(model);
         }
+
 
 
         // GET: Products/Create

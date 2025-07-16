@@ -1,21 +1,7 @@
-﻿@model IEnumerable<Item>
+﻿@model ItemListViewModel
 
 @{
     ViewData["Title"] = "Items";
-}
-
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Success"]
-    </div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["Error"]
-    </div>
 }
 
 <h2>Items</h2>
@@ -25,7 +11,7 @@
 </p>
 
 <table class="table table-bordered table-striped">
-    <thead>
+    <thead class="table-dark">
         <tr>
             <th>Name</th>
             <th>Image</th>
@@ -36,7 +22,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Items)
         {
             <tr>
                 <td>@item.Name</td>
@@ -44,6 +30,10 @@
                     @if (!string.IsNullOrEmpty(item.Image))
                     {
                         <img src="@item.Image" alt="@item.Name" width="60" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">No image</span>
                     }
                 </td>
                 <td>
@@ -53,16 +43,72 @@
                     }
                     @firstSentence
                 </td>
-
                 <td>@(item.Group != null ? item.Group.Name : "-")</td>
                 <td>@(item.Status ? "Active" : "Inactive")</td>
-               
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a> |
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+@{
+    int windowSize = 20;
+    int currentPage = Model.PageNumber;
+    int totalPages = Model.TotalPages;
+
+    int currentWindowStart = ((currentPage - 1) / windowSize) * windowSize + 1;
+    int currentWindowEnd = Math.Min(currentWindowStart + windowSize - 1, totalPages);
+    int previousWindowStart = Math.Max(currentWindowStart - windowSize, 1);
+    int nextWindowStart = currentWindowEnd + 1;
+}
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+
+        @* Go to Previous Page *@
+        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)">Previous</a>
+        </li>
+
+        @* Go to Previous Window << *@
+        @if (currentWindowStart > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@previousWindowStart">«</a>
+            </li>
+        }
+
+        @* Windowed Page Links *@
+        @for (int i = currentWindowStart; i <= currentWindowEnd; i++)
+        {
+            if (i == currentPage)
+            {
+                <li class="page-item active"><span class="page-link">@i</span></li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+                </li>
+            }
+        }
+
+        @* Go to Next Window >> *@
+        @if (currentWindowEnd < totalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@nextWindowStart">»</a>
+            </li>
+        }
+
+        @* Go to Next Page *@
+        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)">Next</a>
+        </li>
+
+    </ul>
+</nav>

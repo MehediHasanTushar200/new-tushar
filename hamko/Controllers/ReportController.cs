@@ -41,7 +41,6 @@ namespace hamko.Controllers
             var allGroups = _context.Groups.Where(g => g.Status).ToList();
             var allItems = _context.Items.ToList();
 
-            // Apply item/group filters
             if (groupId.HasValue)
                 allItems = allItems.Where(i => i.GroupId == groupId.Value).ToList();
 
@@ -50,7 +49,6 @@ namespace hamko.Controllers
 
             var itemIds = allItems.Select(i => i.Id).ToList();
 
-            // Product filtering
             List<Product> allProducts;
             if (from.HasValue && to.HasValue)
             {
@@ -63,7 +61,6 @@ namespace hamko.Controllers
                     .Select(s => s.ProductId);
 
                 var ids = inIds.Union(outIds).Distinct();
-
                 allProducts = _context.Products.Where(p => ids.Contains(p.Id)).ToList();
             }
             else
@@ -74,19 +71,16 @@ namespace hamko.Controllers
             if (groupId.HasValue || itemId.HasValue)
                 allProducts = allProducts.Where(p => itemIds.Contains(p.ItemId)).ToList();
 
-            // StockIns
             var stockInsQuery = _context.StockIns.Where(s => s.Purchase != null).AsQueryable();
             if (from.HasValue && to.HasValue)
                 stockInsQuery = stockInsQuery.Where(s => s.Purchase.Date >= from.Value && s.Purchase.Date <= to.Value);
             var allStockIns = stockInsQuery.ToList();
 
-            // StockOuts
             var stockOutsQuery = _context.StockOuts.Where(s => s.Sales != null).AsQueryable();
             if (from.HasValue && to.HasValue)
                 stockOutsQuery = stockOutsQuery.Where(s => s.Sales.Date >= from.Value && s.Sales.Date <= to.Value);
             var allStockOuts = stockOutsQuery.ToList();
 
-            // Main Group Hierarchy
             var report = allGroups
                 .Where(g => g.ParentId == null)
                 .Select(g => new GroupReportViewModel
@@ -164,91 +158,87 @@ namespace hamko.Controllers
                         }).ToList()
                 }).ToList();
 
-            // Total Calculation
             foreach (var group in report)
             {
-                group.TotalQty = 0; group.TotalPrice = 0; group.TotalAmount = 0;
-                group.TotalOutQty = 0; group.TotalOutPrice = 0; group.TotalOutAmount = 0;
-
-                foreach (var item in group.Items)
-                {
-                    item.TotalQty = 0; item.TotalPrice = 0; item.TotalAmount = 0;
-                    item.TotalOutQty = 0; item.TotalOutPrice = 0; item.TotalOutAmount = 0;
-
-                    foreach (var product in item.Products)
-                    {
-                        foreach (var sin in product.StockIns)
-                        {
-                            item.TotalQty += sin.Quantity;
-                            item.TotalPrice += sin.Price;
-                            item.TotalAmount += sin.Total;
-                        }
-                        foreach (var sout in product.StockOuts)
-                        {
-                            item.TotalOutQty += sout.Quantity;
-                            item.TotalOutPrice += sout.Price;
-                            item.TotalOutAmount += sout.Total;
-                        }
-                    }
-
-                    group.TotalQty += item.TotalQty;
-                    group.TotalPrice += item.TotalPrice;
-                    group.TotalAmount += item.TotalAmount;
-
-                    group.TotalOutQty += item.TotalOutQty;
-                    group.TotalOutPrice += item.TotalOutPrice;
-                    group.TotalOutAmount += item.TotalOutAmount;
-                }
-
-                foreach (var sub in group.SubGroups)
-                {
-                    sub.TotalQty = 0; sub.TotalPrice = 0; sub.TotalAmount = 0;
-                    sub.TotalOutQty = 0; sub.TotalOutPrice = 0; sub.TotalOutAmount = 0;
-
-                    foreach (var item in sub.Items)
-                    {
-                        item.TotalQty = 0; item.TotalPrice = 0; item.TotalAmount = 0;
-                        item.TotalOutQty = 0; item.TotalOutPrice = 0; item.TotalOutAmount = 0;
-
-                        foreach (var product in item.Products)
-                        {
-                            foreach (var sin in product.StockIns)
-                            {
-                                item.TotalQty += sin.Quantity;
-                                item.TotalPrice += sin.Price;
-                                item.TotalAmount += sin.Total;
-                            }
-                            foreach (var sout in product.StockOuts)
-                            {
-                                item.TotalOutQty += sout.Quantity;
-                                item.TotalOutPrice += sout.Price;
-                                item.TotalOutAmount += sout.Total;
-                            }
-                        }
-
-                        sub.TotalQty += item.TotalQty;
-                        sub.TotalPrice += item.TotalPrice;
-                        sub.TotalAmount += item.TotalAmount;
-
-                        sub.TotalOutQty += item.TotalOutQty;
-                        sub.TotalOutPrice += item.TotalOutPrice;
-                        sub.TotalOutAmount += item.TotalOutAmount;
-                    }
-
-                    group.TotalQty += sub.TotalQty;
-                    group.TotalPrice += sub.TotalPrice;
-                    group.TotalAmount += sub.TotalAmount;
-
-                    group.TotalOutQty += sub.TotalOutQty;
-                    group.TotalOutPrice += sub.TotalOutPrice;
-                    group.TotalOutAmount += sub.TotalOutAmount;
-                }
+                CalculateGroupTotals(group);
             }
 
             return report;
         }
 
-        // ViewModels
+
+        // ============================================================================================================
+        // Recursive: Group Total Calculator
+        // ============================================================================================================
+        private void CalculateGroupTotals(GroupReportViewModel group)
+        {
+            group.TotalQty = 0;
+            group.TotalPrice = 0;
+            group.TotalAmount = 0;
+            group.TotalOutQty = 0;
+            group.TotalOutPrice = 0;
+            group.TotalOutAmount = 0;
+
+            foreach (var item in group.Items)
+            {
+                CalculateItemTotals(item);
+                group.TotalQty += item.TotalQty;
+                group.TotalPrice += item.TotalPrice;
+                group.TotalAmount += item.TotalAmount;
+
+                group.TotalOutQty += item.TotalOutQty;
+                group.TotalOutPrice += item.TotalOutPrice;
+                group.TotalOutAmount += item.TotalOutAmount;
+            }
+
+            foreach (var sub in group.SubGroups)
+            {
+                CalculateGroupTotals(sub);
+                group.TotalQty += sub.TotalQty;
+                group.TotalPrice += sub.TotalPrice;
+                group.TotalAmount += sub.TotalAmount;
+
+                group.TotalOutQty += sub.TotalOutQty;
+                group.TotalOutPrice += sub.TotalOutPrice;
+                group.TotalOutAmount += sub.TotalOutAmount;
+            }
+        }
+
+
+        // ============================================================================================================
+        // Recursive: Item Total Calculator
+        // ============================================================================================================
+        private void CalculateItemTotals(ItemReportViewModel item)
+        {
+            item.TotalQty = 0;
+            item.TotalPrice = 0;
+            item.TotalAmount = 0;
+            item.TotalOutQty = 0;
+            item.TotalOutPrice = 0;
+            item.TotalOutAmount = 0;
+
+            foreach (var product in item.Products)
+            {
+                foreach (var sin in product.StockIns)
+                {
+                    item.TotalQty += sin.Quantity;
+                    item.TotalPrice += sin.Price;
+                    item.TotalAmount += sin.Total;
+                }
+
+                foreach (var sout in product.StockOuts)
+                {
+                    item.TotalOutQty += sout.Quantity;
+                    item.TotalOutPrice += sout.Price;
+                    item.TotalOutAmount += sout.Total;
+                }
+            }
+        }
+
+        // ============================================================================================================
+        // ViewModel Classes
+        // ============================================================================================================
+
         public class GroupReportViewModel
         {
             public int Id { get; set; }

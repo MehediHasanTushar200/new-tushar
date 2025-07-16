@@ -1,4 +1,5 @@
-﻿using hamko.Service;
+﻿using hamko.Models;
+using hamko.Service;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,5 +79,6 @@ app.UseEndpoints(endpoints =>
         name: "default",
         pattern: "{controller=Account}/{action=Login}/{id?}");
 });
+
 
 app.Run();

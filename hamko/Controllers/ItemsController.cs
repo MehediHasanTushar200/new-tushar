@@ -15,14 +15,31 @@ public class ItemsController : Controller
     }
 
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1)
     {
-        var items = await _context.Items
-                          .Include(i => i.Group) // Group তথ্য লোড করার জন্য
-                          .ToListAsync();
+        int pageSize = 50;
 
-        return View(items);
+        var query = _context.Items
+                    .Include(i => i.Group)
+                    .OrderBy(i => i.Id);
+
+        int totalItems = await query.CountAsync();
+
+        var items = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+        var model = new ItemListViewModel
+        {
+            Items = items,
+            PageNumber = page,
+            TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize)
+        };
+
+        return View(model);
     }
+
 
 
     // Create page (GET)
@@ -55,13 +72,14 @@ public class ItemsController : Controller
 
         //if (ModelState.IsValid)
         //{
-            _context.Add(item);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+        _context.Add(item);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
         //}
         //ViewData["GroupId"] = new SelectList(_context.Groups, "Id", "Name", item.GroupId);
         //return View(item);
     }
+
 
     public async Task<IActionResult> Edit(int? id)
     {
