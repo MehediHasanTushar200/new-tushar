@@ -95,27 +95,29 @@ namespace hamko.Controllers
                             ItemName = i.Name,
                             Products = allProducts
                                 .Where(p => p.ItemId == i.Id)
-                                .Select(p => new ProductReportViewModel
+                                .Select(p =>
                                 {
-                                    ProductName = p.Name,
-                                    StockIns = allStockIns
-                                        .Where(s => s.ProductId == p.Id)
-                                        .Select(s => new StockInReportViewModel
-                                        {
-                                            Id = s.Id,
-                                            Quantity = s.Quantity,
-                                            Price = s.Price,
-                                            Total = s.Quantity * s.Price
-                                        }).ToList(),
-                                    StockOuts = allStockOuts
-                                        .Where(s => s.ProductId == p.Id)
-                                        .Select(s => new StockOutReportViewModel
-                                        {
-                                            Id = s.Id,
-                                            Quantity = s.Quantity,
-                                            Price = s.Price,
-                                            Total = s.Quantity * s.Price
-                                        }).ToList()
+                                    var productStockIns = allStockIns.Where(s => s.ProductId == p.Id);
+                                    var productStockOuts = allStockOuts.Where(s => s.ProductId == p.Id);
+
+                                    var inQty = productStockIns.Sum(s => s.Quantity);
+                                    var inPrice = productStockIns.Any() ? productStockIns.Average(s => s.Price) : 0;
+                                    var inTotal = productStockIns.Sum(s => s.Quantity * s.Price);
+
+                                    var outQty = productStockOuts.Sum(s => s.Quantity);
+                                    var outPrice = productStockOuts.Any() ? productStockOuts.Average(s => s.Price) : 0;
+                                    var outTotal = productStockOuts.Sum(s => s.Quantity * s.Price);
+
+                                    return new ProductReportViewModel
+                                    {
+                                        ProductName = p.Name,
+                                        InQty = inQty,
+                                        InPrice = inPrice,
+                                        InTotal = inTotal,
+                                        OutQty = outQty,
+                                        OutPrice = outPrice,
+                                        OutTotal = outTotal
+                                    };
                                 }).ToList()
                         }).ToList(),
                     SubGroups = allGroups
@@ -132,27 +134,29 @@ namespace hamko.Controllers
                                     ItemName = i.Name,
                                     Products = allProducts
                                         .Where(p => p.ItemId == i.Id)
-                                        .Select(p => new ProductReportViewModel
+                                        .Select(p =>
                                         {
-                                            ProductName = p.Name,
-                                            StockIns = allStockIns
-                                                .Where(s => s.ProductId == p.Id)
-                                                .Select(s => new StockInReportViewModel
-                                                {
-                                                    Id = s.Id,
-                                                    Quantity = s.Quantity,
-                                                    Price = s.Price,
-                                                    Total = s.Quantity * s.Price
-                                                }).ToList(),
-                                            StockOuts = allStockOuts
-                                                .Where(s => s.ProductId == p.Id)
-                                                .Select(s => new StockOutReportViewModel
-                                                {
-                                                    Id = s.Id,
-                                                    Quantity = s.Quantity,
-                                                    Price = s.Price,
-                                                    Total = s.Quantity * s.Price
-                                                }).ToList()
+                                            var productStockIns = allStockIns.Where(s => s.ProductId == p.Id);
+                                            var productStockOuts = allStockOuts.Where(s => s.ProductId == p.Id);
+
+                                            var inQty = productStockIns.Sum(s => s.Quantity);
+                                            var inPrice = productStockIns.Any() ? productStockIns.Average(s => s.Price) : 0;
+                                            var inTotal = productStockIns.Sum(s => s.Quantity * s.Price);
+
+                                            var outQty = productStockOuts.Sum(s => s.Quantity);
+                                            var outPrice = productStockOuts.Any() ? productStockOuts.Average(s => s.Price) : 0;
+                                            var outTotal = productStockOuts.Sum(s => s.Quantity * s.Price);
+
+                                            return new ProductReportViewModel
+                                            {
+                                                ProductName = p.Name,
+                                                InQty = inQty,
+                                                InPrice = inPrice,
+                                                InTotal = inTotal,
+                                                OutQty = outQty,
+                                                OutPrice = outPrice,
+                                                OutTotal = outTotal
+                                            };
                                         }).ToList()
                                 }).ToList()
                         }).ToList()
@@ -167,9 +171,7 @@ namespace hamko.Controllers
         }
 
 
-        // ============================================================================================================
         // Recursive: Group Total Calculator
-        // ============================================================================================================
         private void CalculateGroupTotals(GroupReportViewModel group)
         {
             group.TotalQty = 0;
@@ -204,10 +206,7 @@ namespace hamko.Controllers
             }
         }
 
-
-        // ============================================================================================================
         // Recursive: Item Total Calculator
-        // ============================================================================================================
         private void CalculateItemTotals(ItemReportViewModel item)
         {
             item.TotalQty = 0;
@@ -219,25 +218,17 @@ namespace hamko.Controllers
 
             foreach (var product in item.Products)
             {
-                foreach (var sin in product.StockIns)
-                {
-                    item.TotalQty += sin.Quantity;
-                    item.TotalPrice += sin.Price;
-                    item.TotalAmount += sin.Total;
-                }
+                item.TotalQty += product.InQty;
+                item.TotalPrice += product.InPrice;
+                item.TotalAmount += product.InTotal;
 
-                foreach (var sout in product.StockOuts)
-                {
-                    item.TotalOutQty += sout.Quantity;
-                    item.TotalOutPrice += sout.Price;
-                    item.TotalOutAmount += sout.Total;
-                }
+                item.TotalOutQty += product.OutQty;
+                item.TotalOutPrice += product.OutPrice;
+                item.TotalOutAmount += product.OutTotal;
             }
         }
 
-        // ============================================================================================================
         // ViewModel Classes
-        // ============================================================================================================
 
         public class GroupReportViewModel
         {
@@ -269,24 +260,12 @@ namespace hamko.Controllers
         public class ProductReportViewModel
         {
             public string ProductName { get; set; }
-            public List<StockInReportViewModel> StockIns { get; set; } = new();
-            public List<StockOutReportViewModel> StockOuts { get; set; } = new();
-        }
-
-        public class StockInReportViewModel
-        {
-            public int Id { get; set; }
-            public decimal Quantity { get; set; }
-            public decimal Price { get; set; }
-            public decimal Total { get; set; }
-        }
-
-        public class StockOutReportViewModel
-        {
-            public int Id { get; set; }
-            public decimal Quantity { get; set; }
-            public decimal Price { get; set; }
-            public decimal Total { get; set; }
+            public decimal InQty { get; set; }
+            public decimal InPrice { get; set; }
+            public decimal InTotal { get; set; }
+            public decimal OutQty { get; set; }
+            public decimal OutPrice { get; set; }
+            public decimal OutTotal { get; set; }
         }
     }
 }
